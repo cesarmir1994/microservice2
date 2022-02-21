@@ -1,3 +1,2 @@
 store/DringWater.apk
-store/whatsapp.apk
 store/fing.apk
