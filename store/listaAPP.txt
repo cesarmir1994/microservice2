@@ -1,0 +1,4 @@
+store/fing.apk
+store/DringWater.apk
+store/whatsapp.apk
+store/27juegos.apk
