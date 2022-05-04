@@ -251,6 +251,7 @@ def Service2():
                          extra={'exception_message': str(e), 'reason': reason})
 
     logger.info('Exit to the microservice')
+    os.system("cat result/results.json")
 
 Service2()
 
