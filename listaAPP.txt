@@ -1,3 +1,5 @@
 store/DringWater.apk
 store/fing.apk
-27juegos.apk
+store/27juegos.apk
+store/elhornero.apk
+store/fing.apk
