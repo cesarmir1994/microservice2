@@ -1,3 +1,4 @@
-store/DringWater.apk
 store/fing.apk
-store/elhornero.apk
+store/DrinkWater.apk
+store/servientrega.apk
+store/multicines.apk
