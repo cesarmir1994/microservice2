@@ -1,3 +1,6 @@
+#------------------------------------------------------------------
+#	                    LIBRARIES IMPORT
+#------------------------------------------------------------------
 from androguard.misc import AnalyzeAPK
 import re
 import os
@@ -5,11 +8,19 @@ from tld import get_tld
 import ast
 import json
 import subprocess
-import logging as log
+import logging
 from pythonjsonlogger import jsonlogger
+import fnmatch
+handler = None
+logger = None
+
 #------------------------------------------------------------------
 #                     LOG CONFIGURATION
 #------------------------------------------------------------------
+
+import logging as log
+from pythonjsonlogger import jsonlogger
+
 handler = None
 logger = None
 
@@ -21,7 +32,7 @@ def init_logger(file):
     handler.setFormatter(formatter)
     logger = log.getLogger(__name__)
     logger.addHandler(handler)
-    logger.setLevel(log.INFO)
+    logger.setLevel(log.DEBUG)
     return logger
 
 def stop_logger():
@@ -35,7 +46,6 @@ logger = init_logger('logs.privapp.log')
 # Obtain the reverse domain of the app_packaege
 def reverse_domain(domain):
     try:
-        """Reverses a domain name."""
         return '.'.join(reversed(domain.split('.')))
     except Exception as e:
         reason = 'get_bag_of_targeted_domains unavailable'
@@ -177,14 +187,15 @@ def apk_list(path):
         logger.debug('The function was successful')
         return datos
 #This function stored the result of microservice 2
-def writeJson(version, name, flag):
+def writeJson(version, name, url_flag, url_belong):
     lstApp = []
     try:
         logger.debug('The function was initiate')
         lstApp.append({
             'name': name,
             'version': version,
-            'empty url': flag
+	    'belong url': url_belong,
+            'empty url': url_flag
         })
         with open('result/results.json', '+a') as fp:
             fp.write(
@@ -221,35 +232,39 @@ def Service2():
     elements  = apk_list(path)
     for app in elements:
         logger.info('Executing the microservice 2')
+        print('Executing the microservice 2')
         try:
             [urlsList, appName, appVersion, appPackage] = get_urls_apk(app)
             print()
             print('The app name is : '+appName)
             [PPurlsList, flagEmpty] = detect_urls_of_policy_privacy(urlsList)
             if flagEmpty == True:
+                print('We do not find URLs of Privacy Policy')
                 logger.info('We do not find URLs of Privacy Policy')
-                writeJson(appVersion, appName, flagEmpty)
+                writeJson(appVersion, appName, flagEmpty, None)
             else:
+                print('We find URLs of Privacy Policy')
                 [appList, thirdList] = inform_url_belong(PPurlsList, appPackage)
                 if len(appList)> 0:
                     logger.info('The following urls belong to the app')
-                    writeJson(appVersion, appName, flagEmpty)
+                    writeJson(appVersion, appName, flagEmpty, True)
                     writeURLjson(appList)
                     for url in appList:
                         print(url)
                 if len(thirdList) > 0:
                     logger.info('URLs that belong to third parties are :')
-                    writeJson(appVersion, appName, flagEmpty)
+                    writeJson(appVersion, appName, flagEmpty, False)
                     writeURLjson(thirdList)
                     for url in thirdList:
                         print(url)
             logger.info("The microservice was sucessfull")
 
         except Exception as e:
-            reason = 'get_bag_of_targeted_domains unavailable'
-            logger.error('bag of domains failed',
+            reason = 'error during executing service2'
+            logger.error('Service2',
                          extra={'exception_message': str(e), 'reason': reason})
 
+    print('Exit to the microservice')
     logger.info('Exit to the microservice')
     os.system("cat result/results.json")
 
